@@ -37,20 +37,24 @@ function M.open(command)
 			{ noremap = true, silent = true }
 		)
 
-		vim.api.nvim_buf_set_keymap(buffer, "t", "<Esc><Up>",
-			string.format("<C-\\><C-n>:lua require('surface').move('%s', 'top')<CR>i", vim.fn.escape(command, "'")),
-			{ noremap = true, silent = true }
-		)
 		vim.api.nvim_buf_set_keymap(buffer, "t", "<Esc><Left>",
 			string.format("<C-\\><C-n>:lua require('surface').move('%s', 'left')<CR>i", vim.fn.escape(command, "'")),
+			{ noremap = true, silent = true }
+		)
+		vim.api.nvim_buf_set_keymap(buffer, "t", "<Esc><Down>",
+			string.format("<C-\\><C-n>:lua require('surface').move('%s', 'bottom')<CR>i", vim.fn.escape(command, "'")),
+			{ noremap = true, silent = true }
+		)
+		vim.api.nvim_buf_set_keymap(buffer, "t", "<Esc><Up>",
+			string.format("<C-\\><C-n>:lua require('surface').move('%s', 'top')<CR>i", vim.fn.escape(command, "'")),
 			{ noremap = true, silent = true }
 		)
 		vim.api.nvim_buf_set_keymap(buffer, "t", "<Esc><Right>",
 			string.format("<C-\\><C-n>:lua require('surface').move('%s', 'right')<CR>i", vim.fn.escape(command, "'")),
 			{ noremap = true, silent = true }
 		)
-		vim.api.nvim_buf_set_keymap(buffer, "t", "<Esc><Down>",
-			string.format("<C-\\><C-n>:lua require('surface').move('%s', 'bottom')<CR>i", vim.fn.escape(command, "'")),
+		vim.api.nvim_buf_set_keymap(buffer, "t", "<Esc>c",
+			string.format("<C-\\><C-n>:lua require('surface').move('%s', 'center')<CR>i", vim.fn.escape(command, "'")),
 			{ noremap = true, silent = true }
 		)
 	end
@@ -79,7 +83,7 @@ function M.window_config_for(terminal)
 	if terminal.position == "bottom" then
 		window_config.width = width - 2
 		window_config.height = math.floor(height / 2)
-		window_config.row = height - window_config.height
+		window_config.row = (height - window_config.height) - 1
 		window_config.col = 1
 	elseif terminal.position == "top" then
 		window_config.width = width - 2
@@ -88,12 +92,12 @@ function M.window_config_for(terminal)
 		window_config.col = 1
 	elseif terminal.position == "left" then
 		window_config.width = math.floor(width / 2)
-		window_config.height = height - 2
+		window_config.height = height - 4
 		window_config.row = 1
 		window_config.col = 1
 	elseif terminal.position == "right" then
 		window_config.width = math.floor(width / 2)
-		window_config.height = height - 2
+		window_config.height = height - 4
 		window_config.row = 1
 		window_config.col = width - window_config.width
 	elseif terminal.position == "center" then
