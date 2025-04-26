@@ -42,3 +42,8 @@ Inside the terminal, you can:
 - Press `<Esc>c` to recenter the terminal
 
 The terminal window will remain open until you hide it
+
+## Next Up
+
+- Allow the default position for all windows to be something other than center
+- Allow the default position to be set per mapping
