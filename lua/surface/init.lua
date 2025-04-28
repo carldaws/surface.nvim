@@ -29,7 +29,7 @@ function M.open(command)
 
 	if vim.fn.bufname(buffer) == "" then
 		local shell = os.getenv("SHELL") or "/bin/sh"
-		local job_id = vim.fn.termopen({ shell, "-c", command .. "; exec " .. shell })
+		local job_id = vim.fn.jobstart({ shell, "-c", command .. "; exec " .. shell }, { term = true })
 		vim.b[buffer].terminal_job_id = job_id
 
 		vim.api.nvim_buf_set_keymap(buffer, "t",
