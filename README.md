@@ -19,9 +19,10 @@ Using lazy.nvim:
   "carldaws/surface.nvim",
   config = function()
     require("surface").setup {
+      default_position = "right",
       mappings = {
         { keymap = "<leader>lg", command = "lazygit" },
-        { keymap = "<leader>sh", command = os.getenv("SHELL") },
+        { keymap = "<leader>sh", command = os.getenv("SHELL"), position = "center" },
       }
     }
   end
@@ -43,7 +44,3 @@ Inside the terminal, you can:
 
 The terminal window will remain open until you hide it
 
-## Next Up
-
-- Allow the default position for all windows to be something other than center
-- Allow the default position to be set per mapping

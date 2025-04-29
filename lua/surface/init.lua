@@ -5,21 +5,25 @@ M.terminals = {}
 
 function M.setup(opts)
 	M.mappings = opts.mappings or {}
+	local default_position = opts.default_position or "center"
 
 	for _, mapping in ipairs(M.mappings) do
+		local starting_position = mapping.position or default_position
 		vim.api.nvim_set_keymap("n", mapping.keymap, string.format(
-			"<cmd>lua require('surface').open('%s')<CR>", vim.fn.escape(mapping.command, "'")
+			"<cmd>lua require('surface').open('%s', '%s')<CR>",
+			vim.fn.escape(mapping.command, "'"),
+			vim.fn.escape(starting_position, "'")
 		), { noremap = true, silent = true })
 	end
 end
 
-function M.open(command)
+function M.open(command, position)
 	local terminal_data = M.terminals[command]
 	local buffer = terminal_data and terminal_data.buffer
 
 	if not buffer or not vim.api.nvim_buf_is_valid(buffer) then
 		buffer = vim.api.nvim_create_buf(false, true)
-		M.terminals[command] = { buffer = buffer, position = "center" }
+		M.terminals[command] = { buffer = buffer, position = position }
 	end
 
 	local window_config = M.window_config_for(M.terminals[command])
