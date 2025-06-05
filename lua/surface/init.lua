@@ -96,12 +96,12 @@ function M.window_config_for(terminal)
 		window_config.col = 1
 	elseif terminal.position == "left" then
 		window_config.width = math.floor(width / 2) - 1
-		window_config.height = height - 4
+		window_config.height = height - 2
 		window_config.row = 1
 		window_config.col = 1
 	elseif terminal.position == "right" then
 		window_config.width = math.floor(width / 2) - 1
-		window_config.height = height - 4
+		window_config.height = height - 2
 		window_config.row = 1
 		window_config.col = width - window_config.width
 	elseif terminal.position == "center" then
