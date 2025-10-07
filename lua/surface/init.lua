@@ -9,11 +9,16 @@ function M.setup(opts)
 
 	for _, mapping in ipairs(M.mappings) do
 		local starting_position = mapping.position or default_position
-		vim.api.nvim_set_keymap("n", mapping.keymap, string.format(
-			"<cmd>lua require('surface').open('%s', '%s')<CR>",
-			vim.fn.escape(mapping.command, "'"),
-			vim.fn.escape(starting_position, "'")
-		), { noremap = true, silent = true })
+		vim.api.nvim_set_keymap(
+			"n",
+			mapping.keymap,
+			string.format(
+				"<cmd>lua require('surface').open('%s', '%s')<CR>",
+				vim.fn.escape(mapping.command, "'"),
+				vim.fn.escape(starting_position, "'")
+			),
+			{ noremap = true, silent = true }
+		)
 	end
 end
 
@@ -36,28 +41,46 @@ function M.open(command, position)
 		local job_id = vim.fn.jobstart({ shell, "-c", command .. "; exec " .. shell }, { term = true })
 		vim.b[buffer].terminal_job_id = job_id
 
-		vim.api.nvim_buf_set_keymap(buffer, "t",
-			"<Esc><Esc>", "<C-\\><C-n>:lua require('surface').hide('" .. command .. "')<CR>",
+		vim.api.nvim_buf_set_keymap(
+			buffer,
+			"t",
+			"<Esc><Esc>",
+			"<C-\\><C-n>:lua require('surface').hide('" .. command .. "')<CR>",
 			{ noremap = true, silent = true }
 		)
 
-		vim.api.nvim_buf_set_keymap(buffer, "t", "<Esc><Left>",
+		vim.api.nvim_buf_set_keymap(
+			buffer,
+			"t",
+			"<Esc><Left>",
 			string.format("<C-\\><C-n>:lua require('surface').move('%s', 'left')<CR>i", vim.fn.escape(command, "'")),
 			{ noremap = true, silent = true }
 		)
-		vim.api.nvim_buf_set_keymap(buffer, "t", "<Esc><Down>",
+		vim.api.nvim_buf_set_keymap(
+			buffer,
+			"t",
+			"<Esc><Down>",
 			string.format("<C-\\><C-n>:lua require('surface').move('%s', 'bottom')<CR>i", vim.fn.escape(command, "'")),
 			{ noremap = true, silent = true }
 		)
-		vim.api.nvim_buf_set_keymap(buffer, "t", "<Esc><Up>",
+		vim.api.nvim_buf_set_keymap(
+			buffer,
+			"t",
+			"<Esc><Up>",
 			string.format("<C-\\><C-n>:lua require('surface').move('%s', 'top')<CR>i", vim.fn.escape(command, "'")),
 			{ noremap = true, silent = true }
 		)
-		vim.api.nvim_buf_set_keymap(buffer, "t", "<Esc><Right>",
+		vim.api.nvim_buf_set_keymap(
+			buffer,
+			"t",
+			"<Esc><Right>",
 			string.format("<C-\\><C-n>:lua require('surface').move('%s', 'right')<CR>i", vim.fn.escape(command, "'")),
 			{ noremap = true, silent = true }
 		)
-		vim.api.nvim_buf_set_keymap(buffer, "t", "<Esc>c",
+		vim.api.nvim_buf_set_keymap(
+			buffer,
+			"t",
+			"<Esc>c",
 			string.format("<C-\\><C-n>:lua require('surface').move('%s', 'center')<CR>i", vim.fn.escape(command, "'")),
 			{ noremap = true, silent = true }
 		)
@@ -74,36 +97,60 @@ function M.move(command, position)
 	vim.api.nvim_win_set_config(terminal.window, window_config)
 end
 
+function M.get_available_dimensions()
+	local ui = vim.api.nvim_list_uis()[1]
+	if not ui then
+		return vim.o.columns, vim.o.lines
+	end
+
+	local available_width = ui.width
+	local available_height = ui.height
+
+	-- Account for command line
+	available_height = available_height - vim.o.cmdheight
+
+	-- Account for status line
+	if vim.o.laststatus > 0 then
+		available_height = available_height - 1
+	end
+
+	-- Account for tab line
+	if vim.o.showtabline > 0 or (vim.o.showtabline == 1 and #vim.api.nvim_list_tabpages() > 1) then
+		available_height = available_height - 1
+	end
+
+	return available_width, available_height
+end
+
 function M.window_config_for(terminal)
-	local width = vim.o.columns
-	local height = vim.o.lines
+	local width, height = M.get_available_dimensions()
 
 	local window_config = {
 		style = "minimal",
 		relative = "editor",
-		border = "rounded"
+		border = "rounded",
 	}
 
 	if terminal.position == "bottom" then
 		window_config.width = width - 2
-		window_config.height = math.floor(height / 2)
-		window_config.row = (height - window_config.height) - 1
+		window_config.height = math.floor(height / 2) - 1
+		window_config.row = height - window_config.height - 1
 		window_config.col = 1
 	elseif terminal.position == "top" then
 		window_config.width = width - 2
-		window_config.height = math.floor(height / 2)
-		window_config.row = 1
+		window_config.height = math.floor(height / 2) - 1
+		window_config.row = 0
 		window_config.col = 1
 	elseif terminal.position == "left" then
 		window_config.width = math.floor(width / 2) - 1
-		window_config.height = height - 2
-		window_config.row = 1
-		window_config.col = 1
+		window_config.height = height - 1
+		window_config.row = 0
+		window_config.col = 0
 	elseif terminal.position == "right" then
 		window_config.width = math.floor(width / 2) - 1
-		window_config.height = height - 2
-		window_config.row = 1
-		window_config.col = width - window_config.width
+		window_config.height = height - 1
+		window_config.row = 0
+		window_config.col = width - window_config.width - 1
 	elseif terminal.position == "center" then
 		window_config.width = math.floor(width * 0.8)
 		window_config.height = math.floor(height * 0.8)
