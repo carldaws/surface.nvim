@@ -40,6 +40,7 @@ function M.open(command, position)
     local shell = os.getenv("SHELL") or "/bin/sh"
     local job_id = vim.fn.jobstart({ shell, "-c", command .. "; exec " .. shell }, { term = true })
     vim.b[buffer].terminal_job_id = job_id
+    M.terminals[command].job_id = job_id
 
     vim.api.nvim_buf_set_keymap(
       buffer,
@@ -173,6 +174,15 @@ function M.hide(command)
     vim.api.nvim_win_close(terminal.window, true)
     M.terminals[command].window = nil
   end
+end
+
+function M.send(command, text)
+  local terminal = M.terminals[command]
+  if not terminal or not terminal.job_id then
+    return false
+  end
+  vim.fn.chansend(terminal.job_id, text)
+  return true
 end
 
 return M
